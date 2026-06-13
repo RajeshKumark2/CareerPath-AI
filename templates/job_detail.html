@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Job Details{% endblock %}
+{% block content %}
+<div class="container">
+    <h1>Job Details</h1>
+    <div id="jobDetails">Loading...</div>
+</div>
+
+<script>
+const jobId = window.location.pathname.split('/')[2];
+fetch(`/api/jobs/${jobId}/full_details/`)
+    .then(res => res.json())
+    .then(job => {
+        document.getElementById('jobDetails').innerHTML = `
+            <h2>${job.job_name}</h2>
+            <p>${job.description}</p>
+            <h3>Skills Required</h3>
+            <ul>${job.skills?.map(s => `<li>${s.skill_name}</li>`).join('') || '<li>No skills listed</li>'}</ul>
+        `;
+    });
+</script>
+{% endblock %}
+

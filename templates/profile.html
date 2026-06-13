@@ -1,0 +1,348 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - CareerPath AI{% endblock %}
+
+{% block content %}
+<section class="profile-section">
+    <div class="container">
+        <div class="profile-header">
+            <h1>Your Profile</h1>
+            <p>Manage your personal information and career preferences</p>
+        </div>
+
+        <div class="profile-content">
+            <!-- Profile Info Form -->
+            <div class="profile-card">
+                <h2>Personal Information</h2>
+                <form id="profileForm" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" name="username" value="{{ user.username }}" class="form-control" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" value="{{ user.email }}" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" class="form-control" placeholder="Enter 10-digit mobile number">
+                            <button type="button" class="btn-verify" onclick="verifyPhone()">Verify Phone</button>
+                        </div>
+                        <div class="form-group">
+                            <label for="role">User Role</label>
+                            <select id="role" name="role" class="form-control">
+                                <option value="student">UG Student</option>
+                                <option value="pg_student">PG Student</option>
+                                <option value="fresher">Fresher</option>
+                                <option value="career_switcher">Career Switcher</option>
+                                <option value="professional">Working Professional</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="current_experience">Current Experience (years)</label>
+                            <input type="text" id="current_experience" name="current_experience" class="form-control" placeholder="e.g., 2 years">
+                        </div>
+                        <div class="form-group">
+                            <label for="target_role">Target Job Role</label>
+                            <input type="text" id="target_role" name="target_role" class="form-control" placeholder="e.g., Data Analyst">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <input type="text" id="location" name="location" class="form-control" placeholder="City, State">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bio">Bio / Professional Summary</label>
+                        <textarea id="bio" name="bio" rows="4" class="form-control" placeholder="Tell us about yourself..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="profile_picture">Profile Picture</label>
+                        <input type="file" id="profile_picture" name="profile_picture" class="form-control" accept="image/*">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="button" class="btn btn-secondary" onclick="window.location.href='/dashboard/'">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Stats Section -->
+            <div class="stats-card">
+                <h2>Your Activity</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="jobViews">0</div>
+                        <div class="stat-label">Jobs Viewed</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="mockTests">0</div>
+                        <div class="stat-label">Mock Tests Taken</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="progress">0%</div>
+                        <div class="stat-label">Learning Progress</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.profile-section {
+    padding: 2rem 0;
+    background-color: #f5f5f5;
+    min-height: calc(100vh - 200px);
+}
+
+.profile-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.profile-header h1 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.profile-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+.profile-card, .stats-card {
+    background: white;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.profile-card h2, .stats-card h2 {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 0.5rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+textarea.form-control {
+    resize: vertical;
+}
+
+.btn-verify {
+    margin-top: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.btn-verify:hover {
+    background-color: #218838;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.stats-grid {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .profile-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+</style>
+
+<script>
+// Load profile data when page loads
+document.addEventListener('DOMContentLoaded', async function() {
+    await loadProfile();
+    await loadStats();
+});
+
+async function loadProfile() {
+    try {
+        const response = await fetch('/api/auth/users/profile/');
+        if (response.ok) {
+            const profile = await response.json();
+            document.getElementById('phone').value = profile.phone || '';
+            document.getElementById('role').value = profile.role || 'student';
+            document.getElementById('current_experience').value = profile.current_experience || '';
+            document.getElementById('target_role').value = profile.target_role || '';
+            document.getElementById('location').value = profile.location || '';
+            document.getElementById('bio').value = profile.bio || '';
+        }
+    } catch (error) {
+        console.error('Error loading profile:', error);
+    }
+}
+
+async function loadStats() {
+    // Load mock test stats
+    try {
+        const response = await fetch('/api/interview/mock-tests/');
+        if (response.ok) {
+            const tests = await response.json();
+            document.getElementById('mockTests').textContent = tests.length || 0;
+        }
+    } catch (error) {
+        console.error('Error loading stats:', error);
+    }
+    
+    // Set default values
+    document.getElementById('jobViews').textContent = localStorage.getItem('jobViews') || 0;
+    document.getElementById('progress').textContent = localStorage.getItem('learningProgress') || '0%';
+}
+
+async function verifyPhone() {
+    const phone = document.getElementById('phone').value;
+    if (!phone || phone.length !== 10) {
+        alert('Please enter a valid 10-digit phone number');
+        return;
+    }
+    
+    // Here you would implement OTP verification
+    alert('OTP sent to ' + phone + '. Please enter OTP to verify.');
+}
+
+// Handle form submission
+document.getElementById('profileForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData();
+    formData.append('role', document.getElementById('role').value);
+    formData.append('phone', document.getElementById('phone').value);
+    formData.append('current_experience', document.getElementById('current_experience').value);
+    formData.append('target_role', document.getElementById('target_role').value);
+    formData.append('location', document.getElementById('location').value);
+    formData.append('bio', document.getElementById('bio').value);
+    
+    const profilePic = document.getElementById('profile_picture').files[0];
+    if (profilePic) {
+        formData.append('profile_picture', profilePic);
+    }
+    
+    try {
+        const response = await fetch('/api/auth/users/update_profile/', {
+            method: 'PUT',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: formData
+        });
+        
+        if (response.ok) {
+            alert('Profile updated successfully!');
+            window.location.reload();
+        } else {
+            const error = await response.json();
+            alert('Error: ' + JSON.stringify(error));
+        }
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        alert('An error occurred. Please try again.');
+    }
+});
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}
+
